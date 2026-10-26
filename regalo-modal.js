@@ -3,7 +3,9 @@
    1) Copiar regalo-modal.css, regalo-modal.js y regalo-fondo.jpg a la carpeta.
    2) Enlazar regalo-modal.css en el head (etiqueta link).
    3) Cargar regalo-modal.js al final del body, despues de java2.js.
-   4) El botón de regalos llama a openGiftModal()  (o showGifts()). */
+   4) El botón de regalos llama a openGiftModal()  (o showGifts()).
+   5) Código de vestimenta: copiar codigo-vestimenta.jpg; el botón llama a
+      openDressCodeModal()  (o showDressCode()). */
 (function () {
     const REGALO = {
         tipoCuenta: 'Cuenta corriente',
@@ -128,4 +130,42 @@
     window.openGiftModal = openGiftModal;
     window.closeGiftModal = closeGiftModal;
     window.showGifts = openGiftModal; // compatibilidad con onclick="showGifts()"
+    /* ----- Código de vestimenta (imagen flotante) ----- */
+    const DRESS_IMG = 'codigo-vestimenta.jpg';
+
+    function buildDress() {
+        if (document.getElementById('rgDressOverlay')) return;
+        document.body.insertAdjacentHTML('beforeend',
+            '<div id="rgDressOverlay" class="rg-overlay" role="dialog" aria-modal="true" aria-label="Código de vestimenta">' +
+              '<div class="rg-sheet rg-dress">' +
+                '<button type="button" class="rg-close" aria-label="Cerrar">&times;</button>' +
+                '<img src="' + DRESS_IMG + '" alt="Código de vestimenta: atuendo formal en tonos rosa palo, beige, verde salvia y marrón. El color blanco es exclusivo de la novia." loading="lazy">' +
+              '</div>' +
+            '</div>');
+        const o = document.getElementById('rgDressOverlay');
+        o.addEventListener('click', function (e) {
+            if (e.target === o || e.target.closest('.rg-close')) closeDressCodeModal();
+        });
+    }
+
+    function openDressCodeModal() {
+        buildDress();
+        document.getElementById('rgDressOverlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDressCodeModal() {
+        const o = document.getElementById('rgDressOverlay');
+        if (!o) return;
+        o.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeDressCodeModal();
+    });
+
+    window.openDressCodeModal = openDressCodeModal;
+    window.closeDressCodeModal = closeDressCodeModal;
+    window.showDressCode = openDressCodeModal; // compatibilidad con onclick="showDressCode()"
 })();

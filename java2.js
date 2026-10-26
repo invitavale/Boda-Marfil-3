@@ -373,8 +373,9 @@ function initializeParallax() {
 // reales, cada uno debe apuntar a su Google Maps, carpeta de Drive,
 // método de regalo y Google Form correspondientes.
 
+// Código de vestimenta: imagen flotante (vive en regalo-modal.js)
 function showDressCode() {
-    showToast("Código de vestimenta", "Elegante sport. Colores tierra, neutros y champán son bienvenidos.");
+    if (window.openDressCodeModal) window.openDressCodeModal();
 }
 
 function showTips() {

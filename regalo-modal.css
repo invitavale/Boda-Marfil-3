@@ -171,3 +171,16 @@
 .rg-toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 .rg-hidden { display: none !important; }
+
+/* Código de vestimenta: imagen flotante */
+.rg-dress {
+    max-width: 480px;
+    padding: 0;
+    overflow: hidden;
+    background: #fff;
+}
+.rg-dress img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
