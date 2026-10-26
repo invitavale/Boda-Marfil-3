@@ -397,3 +397,18 @@ function showToast(title, message) {
         toast.classList.remove('show');
     }, 4000);
 }
+
+// Álbum compartido de Google Fotos
+function uploadPhoto() {
+    window.open('https://photos.app.goo.gl/b2UVjmavA8Pwxa6X6', '_blank', 'noopener');
+}
+
+// Regalos: el modal (datos bancarios / mesa de regalos) vive en regalo-modal.js
+function showGifts() {
+    if (window.openGiftModal) window.openGiftModal();
+}
+
+// Confirmación de asistencia (Google Form)
+function confirmAttendance() {
+    window.open('https://docs.google.com/forms/d/e/1FAIpQLScxojtt9jqEa84t0NWAciUShVSkWZlxG8qITy1HFrg_ssM1qA/viewform?usp=publish-editor', '_blank', 'noopener');
+}

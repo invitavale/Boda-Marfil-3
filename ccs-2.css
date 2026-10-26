@@ -775,3 +775,7 @@ button { font-family: inherit; }
     .carousel-track { transition: none; }
     .btn-wedding { transition: none; }
 }
+
+/* ===== Carrusel: fotos lo más grandes posible (misma altura de sección) ===== */
+.carousel-container { max-width: 100%; }
+.carousel-item img { object-fit: cover; }
