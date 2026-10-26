@@ -1,0 +1,777 @@
+/* =========================================================
+   Invitación de boda · Juan & Yerianny
+   Paleta: blanco papel + dorado elegante
+   Para cambiar el color de acento, edita solo --accent / --accent-dark
+   ========================================================= */
+:root {
+    /* Colores base (formato HSL sin hsl() para poder usar opacidad) */
+    --ink: 30 13% 17%;            /* texto principal, espresso */
+    --accent: 42 48% 50%;         /* dorado elegante  #bd9b42 */
+    --accent-light: 44 60% 66%;   /* dorado claro     #deC27a */
+    --accent-dark: 40 58% 35%;    /* oro viejo        #8d6c25 */
+    --accent-soft: 43 55% 90%;    /* champán claro    #f5ecd6 */
+    --paper: 40 20% 98%;          /* blanco papel     #fbfaf7 */
+
+    /* Alias que usa java2.js (toast) */
+    --foreground: var(--ink);
+    --brown: var(--accent-dark);
+
+    --font-display: 'Cormorant Garamond', 'Georgia', 'Times New Roman', serif;
+    --font-body: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+
+    /* Efecto de capas */
+    --layer-overlap: 40px;   /* no cambiar: la sombra ondulada está calculada para 40px */
+    --layer-radius: 2rem;
+    --wave-w: calc(100% / 6);   /* ancho de cada ola: 6 olas por pantalla */
+    --layer-shadow:
+        0 -1px 0 hsl(var(--ink) / 0.04),
+        0 -10px 18px -10px hsl(var(--ink) / 0.22),
+        0 -26px 44px -26px hsl(var(--ink) / 0.28);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 0.975rem;
+    line-height: 1.7;
+    color: hsl(var(--ink));
+    background: hsl(var(--paper)) url('fondo.jpg') center top / cover fixed;
+    -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; }
+
+/* ---------------------------------------------------------
+   Modal de bienvenida
+   --------------------------------------------------------- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(251, 250, 247, 0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    overflow: hidden;
+}
+
+.welcome-hero {
+    position: relative;
+    width: min(92vw, 760px);
+    padding: clamp(2rem, 5vw, 3rem);
+    text-align: center;
+}
+
+.welcome-hero::before {
+    content: "";
+    position: absolute;
+    inset: -40vh -10vw;
+    background: url('foto0.jpg') center / cover;
+    opacity: 0.45;
+    filter: blur(16px);
+    z-index: -1;
+}
+
+.welcome-date {
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+    color: hsl(var(--ink) / 0.7);
+    margin-bottom: 1rem;
+}
+
+.welcome-heading {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+    line-height: 1.2;
+    color: hsl(var(--ink));
+    margin: 0 auto 1rem;
+    max-width: 26ch;
+    text-wrap: balance;
+}
+
+.welcome-heading .names {
+    font-style: italic;
+    font-size: 1.25em;
+    color: hsl(var(--accent-dark));
+}
+
+.welcome-heading .ampersand { color: hsl(var(--accent)); padding: 0 0.1em; }
+
+.welcome-subtitle {
+    color: hsl(var(--ink) / 0.75);
+    margin-bottom: 1.75rem;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+    .modal-buttons { flex-direction: column; }
+}
+
+/* ---------------------------------------------------------
+   Botones
+   --------------------------------------------------------- */
+.btn-wedding {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    border-radius: 999px;
+    border: 1px solid hsl(var(--accent-dark) / 0.6);
+    background: linear-gradient(135deg, hsl(var(--accent-dark)) 0%, hsl(var(--accent)) 50%, hsl(var(--accent-dark)) 100%);
+    background-size: 200% 100%;
+    color: #fff;
+    text-shadow: 0 1px 1px hsl(var(--accent-dark) / 0.6);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    box-shadow: 0 8px 20px -10px hsl(var(--accent-dark) / 0.7);
+    transition: background-position 0.5s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-wedding:hover {
+    background-position: 100% 0;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px -10px hsl(var(--accent-dark) / 0.8);
+}
+
+.btn-wedding:focus-visible,
+.carousel-btn:focus-visible,
+.music-button:focus-visible {
+    outline: 2px solid hsl(var(--accent));
+    outline-offset: 3px;
+}
+
+.btn-outline {
+    background: transparent;
+    border-color: hsl(var(--accent));
+    color: hsl(var(--accent-dark));
+    text-shadow: none;
+    box-shadow: none;
+}
+
+.btn-outline:hover { background: hsl(var(--accent) / 0.12); }
+
+/* ---------------------------------------------------------
+   Reproductor de música
+   --------------------------------------------------------- */
+.music-player {
+    position: fixed;
+    top: calc(1rem + env(safe-area-inset-top, 0px));
+    right: 1rem;
+    z-index: 1000;
+}
+
+.music-button {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid hsl(var(--accent) / 0.4);
+    background: hsl(var(--paper) / 0.92);
+    color: hsl(var(--accent-dark));
+    cursor: pointer;
+    box-shadow: 0 6px 18px -6px hsl(var(--ink) / 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* ---------------------------------------------------------
+   Portada única a pantalla completa
+   --------------------------------------------------------- */
+.hero {
+    position: sticky;              /* las capas se deslizan por encima */
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    min-height: 520px;
+    overflow: hidden;
+    z-index: 0;
+    color: #fff;
+}
+
+.hero-bg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -60px;                    /* colchón para el parallax (igual a BUFFER_PX en JS) */
+    height: calc(100% + 60px);
+    background: url('foto0.jpg') center 25% / cover no-repeat;
+    will-change: transform;
+}
+
+.hero-shade {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(to top, rgba(30, 24, 18, 0.72) 0%, rgba(30, 24, 18, 0.25) 38%, rgba(30, 24, 18, 0) 60%),
+        linear-gradient(to bottom, rgba(30, 24, 18, 0.25) 0%, rgba(30, 24, 18, 0) 18%);
+}
+
+.hero-text {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--layer-overlap) + 4.5rem);
+    padding: 0 1.5rem;
+    text-align: center;
+}
+
+.hero-kicker {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(1.15rem, 3.5vw, 1.4rem);
+    opacity: 0.92;
+    margin-bottom: 0.25rem;
+}
+
+.hero-names {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(3rem, 13vw, 6rem);
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+}
+
+.hero-amp {
+    font-style: italic;
+    font-size: 0.8em;
+    color: hsl(var(--accent-light));
+}
+
+.hero-date {
+    margin-top: 0.9rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.28em;
+    opacity: 0.9;
+}
+
+.hero-scroll {
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--layer-overlap) + 1.25rem);
+    width: 1px;
+    height: 2.5rem;
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateX(-50%);
+    overflow: hidden;
+}
+
+.hero-scroll span {
+    position: absolute;
+    left: 0;
+    top: -40%;
+    width: 1px;
+    height: 40%;
+    background: #fff;
+    animation: scrollLine 2.2s ease-in-out infinite;
+}
+
+@keyframes scrollLine {
+    0%   { top: -40%; }
+    100% { top: 100%; }
+}
+
+/* ---------------------------------------------------------
+   Secciones en capas alternadas:
+   una ARRIBA (elevada, sombra arriba y abajo),
+   la siguiente ABAJO (hundida, recibe la sombra),
+   la siguiente otra vez ARRIBA... y así.
+   java2.js asigna .layer--up / .layer--down a las secciones
+   visibles, así la alternancia no se rompe si la sección de
+   invitados está oculta.
+   --------------------------------------------------------- */
+.layers {
+    position: relative;
+    z-index: 1;
+}
+
+.layer {
+    position: relative;
+    text-align: center;
+    padding: 4.25rem 1.25rem;
+}
+
+/* Sección elevada: bordes ondulados arriba y abajo (máscara SVG).
+   --wave-w define cuántas olas caben: 100%/6 = 6 olas a lo ancho
+   de la pantalla (10 en escritorio). La ola mide 18px de alto. */
+.layer--up {
+    z-index: 3;
+    margin: calc(var(--layer-overlap) * -1) 0;
+    background: hsl(var(--paper)) url('fondo.jpg') center / cover;
+    padding-top: calc(4.25rem + 16px);
+    padding-bottom: calc(4.25rem + 16px);
+    -webkit-mask:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='18' viewBox='0 0 150 18' preserveAspectRatio='none'%3E%3Cg transform='translate%280 18%29 scale%281 -1%29'%3E%3Cpath d='M0 0 H150 V2 C112.5 2 112.5 16 75.0 16 C37.5 16 37.5 2 0 2 Z'/%3E%3C/g%3E%3C/svg%3E") left top / var(--wave-w) 18px repeat-x,
+        linear-gradient(#000, #000) left center / 100% calc(100% - 34px) no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='18' viewBox='0 0 150 18' preserveAspectRatio='none'%3E%3Cpath d='M0 0 H150 V2 C112.5 2 112.5 16 75.0 16 C37.5 16 37.5 2 0 2 Z'/%3E%3C/svg%3E") left bottom / var(--wave-w) 18px repeat-x;
+            mask:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='18' viewBox='0 0 150 18' preserveAspectRatio='none'%3E%3Cg transform='translate%280 18%29 scale%281 -1%29'%3E%3Cpath d='M0 0 H150 V2 C112.5 2 112.5 16 75.0 16 C37.5 16 37.5 2 0 2 Z'/%3E%3C/g%3E%3C/svg%3E") left top / var(--wave-w) 18px repeat-x,
+        linear-gradient(#000, #000) left center / 100% calc(100% - 34px) no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='18' viewBox='0 0 150 18' preserveAspectRatio='none'%3E%3Cpath d='M0 0 H150 V2 C112.5 2 112.5 16 75.0 16 C37.5 16 37.5 2 0 2 Z'/%3E%3C/svg%3E") left bottom / var(--wave-w) 18px repeat-x;
+}
+
+/* Sección hundida: recibe la sombra de las hojas elevadas.
+   1) sombra ondulada que sigue la forma de la ola (SVG desenfocado)
+   2) degradado gris amplio que se desvanece hacia el centro */
+.layer--down {
+    z-index: 1;
+    padding-top: calc(4.25rem + var(--layer-overlap));
+    padding-bottom: calc(4.25rem + var(--layer-overlap));
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='170' viewBox='0 0 150 170' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cfilter id='b' x='-50%25' y='-50%25' width='200%25' height='200%25'%3E%3CfeGaussianBlur stdDeviation='10'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M-150 -60 L-150 24 C-112.5 24 -112.5 38 -75.0 38 C-37.5 38 -37.5 24 0 24 C37.5 24 37.5 38 75.0 38 C112.5 38 112.5 24 150 24 C187.5 24 187.5 38 225.0 38 C262.5 38 262.5 24 300 24 L300 -60 Z' fill='rgb%2847,41,35%29' fill-opacity='0.34' filter='url%28%23b%29' transform='translate%280 6%29'/%3E%3C/svg%3E") left top / var(--wave-w) 170px repeat-x,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='170' viewBox='0 0 150 170' preserveAspectRatio='none'%3E%3Cg transform='translate%280 170%29 scale%281 -1%29'%3E%3Cdefs%3E%3Cfilter id='b' x='-50%25' y='-50%25' width='200%25' height='200%25'%3E%3CfeGaussianBlur stdDeviation='10'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M-150 -60 L-150 24 C-112.5 24 -112.5 38 -75.0 38 C-37.5 38 -37.5 24 0 24 C37.5 24 37.5 38 75.0 38 C112.5 38 112.5 24 150 24 C187.5 24 187.5 38 225.0 38 C262.5 38 262.5 24 300 24 L300 -60 Z' fill='rgb%2847,41,35%29' fill-opacity='0.34' filter='url%28%23b%29' transform='translate%280 6%29'/%3E%3C/g%3E%3C/svg%3E") left bottom / var(--wave-w) 170px repeat-x,
+        linear-gradient(to bottom,
+            hsl(var(--ink) / 0.10) var(--layer-overlap),
+            hsl(var(--ink) / 0.035) calc(var(--layer-overlap) + 60px),
+            transparent calc(var(--layer-overlap) + 140px)),
+        linear-gradient(to top,
+            hsl(var(--ink) / 0.10) var(--layer-overlap),
+            hsl(var(--ink) / 0.035) calc(var(--layer-overlap) + 60px),
+            transparent calc(var(--layer-overlap) + 140px)),
+        hsl(var(--paper)) url('fondo.jpg') center / cover;
+}
+
+/* Última sección hundida (sin hoja debajo): sin sombra inferior */
+.layer--down.layer--last {
+    padding-bottom: 4.25rem;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='170' viewBox='0 0 150 170' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cfilter id='b' x='-50%25' y='-50%25' width='200%25' height='200%25'%3E%3CfeGaussianBlur stdDeviation='10'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M-150 -60 L-150 24 C-112.5 24 -112.5 38 -75.0 38 C-37.5 38 -37.5 24 0 24 C37.5 24 37.5 38 75.0 38 C112.5 38 112.5 24 150 24 C187.5 24 187.5 38 225.0 38 C262.5 38 262.5 24 300 24 L300 -60 Z' fill='rgb%2847,41,35%29' fill-opacity='0.34' filter='url%28%23b%29' transform='translate%280 6%29'/%3E%3C/svg%3E") left top / var(--wave-w) 170px repeat-x,
+        linear-gradient(to bottom,
+            hsl(var(--ink) / 0.10) var(--layer-overlap),
+            hsl(var(--ink) / 0.035) calc(var(--layer-overlap) + 60px),
+            transparent calc(var(--layer-overlap) + 140px)),
+        hsl(var(--paper)) url('fondo.jpg') center / cover;
+}
+
+.layer-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* ---------------------------------------------------------
+   Tipografía de secciones
+   --------------------------------------------------------- */
+.section-title {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.1rem, 6.5vw, 2.9rem);
+    line-height: 1.15;
+    color: hsl(var(--ink));
+    margin-bottom: 0.75rem;
+    text-wrap: balance;
+}
+
+.section-subtitle {
+    max-width: 34rem;
+    margin: 0 auto 2.25rem;
+    color: hsl(var(--ink) / 0.72);
+}
+
+/* Círculo de íconos (unificado) */
+.icon-ring {
+    width: 5.5rem;
+    height: 5.5rem;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    border: 1px solid hsl(var(--accent) / 0.45);
+    background: hsl(var(--accent) / 0.07);
+    color: hsl(var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ilustraciones doradas (anillos, copas, cámara, percha, notas, regalo) */
+.icon-art {
+    display: block;
+    width: 7.5rem;
+    height: 7.5rem;
+    margin: 0 auto 1.25rem;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 12px hsl(var(--accent-dark) / 0.18));
+}
+
+/* Ícono sin círculo (subir foto) */
+.icon-plain {
+    color: hsl(var(--accent));
+    margin: 0 auto 1rem;
+    line-height: 0;
+}
+
+/* Ícono del formulario de confirmación */
+.icon-form {
+    display: block;
+    width: 8.5rem;
+    height: 8.5rem;
+    margin: 0 auto 1.25rem;
+    filter: drop-shadow(0 10px 14px hsl(var(--accent-dark) / 0.2));
+}
+
+/* ---------------------------------------------------------
+   Countdown
+   --------------------------------------------------------- */
+.countdown-section { padding-top: 3.5rem; }
+
+.countdown-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(0.75rem, 4vw, 2rem);
+    flex-wrap: nowrap;
+}
+
+.countdown-item { min-width: 3.5rem; }
+
+.countdown-number {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.5rem, 10vw, 3.75rem);
+    line-height: 1;
+    font-variant-numeric: lining-nums tabular-nums;
+    color: hsl(var(--ink));
+    margin-bottom: 0.4rem;
+}
+
+.countdown-label {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    color: hsl(var(--accent-dark));
+}
+
+.countdown-separator {
+    width: 1px;
+    height: 2.75rem;
+    background: hsl(var(--accent) / 0.4);
+}
+
+/* ---------------------------------------------------------
+   Invitados (por URL)
+   --------------------------------------------------------- */
+.guest-badge {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.35rem;
+    color: #fff;
+    background: hsl(var(--accent-dark));
+}
+
+.guest-title { margin-bottom: 0.25rem; }
+
+.guest-subtitle {
+    color: hsl(var(--accent-dark));
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.guest-greeting {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    max-width: 24rem;
+    margin: 0 auto;
+}
+
+.guest-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    padding: 0.35rem 1.25rem;
+    border-radius: 8px;
+    color: hsl(var(--ink));
+}
+
+.guest-name.color-1 { background: hsl(var(--accent) / 0.12); }
+.guest-name.color-2 { background: hsl(var(--accent-soft)); }
+.guest-name.color-3 { background: hsl(var(--accent-dark) / 0.1); }
+.guest-name.color-4 { background: hsl(var(--accent) / 0.2); }
+
+.guest-closing {
+    margin-top: 1.5rem;
+    color: hsl(var(--ink) / 0.72);
+}
+
+/* ---------------------------------------------------------
+   Ceremonia & Recepción
+   --------------------------------------------------------- */
+.events-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+}
+
+.event-title {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 2rem;
+    line-height: 1.2;
+    color: hsl(var(--ink));
+    margin-bottom: 1.25rem;
+}
+
+.event-details { margin-bottom: 1.25rem; }
+
+.event-details h4 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.2rem;
+    color: hsl(var(--accent-dark));
+    margin-bottom: 0.2rem;
+}
+
+.event-details p { color: hsl(var(--ink) / 0.8); }
+
+.event-address {
+    font-size: 0.875rem;
+    color: hsl(var(--ink) / 0.6) !important;
+    margin-bottom: 0.5rem;
+}
+
+/* ---------------------------------------------------------
+   Galería
+   --------------------------------------------------------- */
+.carousel-container {
+    position: relative;
+    max-width: 760px;
+    margin: 0 auto 1.25rem;
+}
+
+.carousel-track-container {
+    overflow: hidden;
+    border-radius: 14px;
+    box-shadow: 0 18px 40px -22px hsl(var(--ink) / 0.5);
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.6s ease-in-out;
+}
+
+.carousel-item {
+    flex: 0 0 100%;
+    height: 560px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: hsl(var(--accent-soft) / 0.6);
+    overflow: hidden;
+}
+
+.carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.92);
+    color: hsl(var(--accent-dark));
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 6px 16px -6px hsl(var(--ink) / 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.carousel-prev { left: 10px; }
+.carousel-next { right: 10px; }
+
+.carousel-counter {
+    color: hsl(var(--ink) / 0.6);
+    font-size: 0.85rem;
+}
+
+/* ---------------------------------------------------------
+   Detalles
+   --------------------------------------------------------- */
+.party-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 15.5rem));
+    justify-content: center;
+    gap: 1.25rem;
+}
+
+.party-card {
+    position: relative;
+    padding: 2rem 1.35rem 1.75rem;
+    border: 1px solid hsl(var(--accent) / 0.3);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 14px 30px -24px hsl(var(--accent-dark) / 0.55);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Filete dorado interior, como marco de tarjeta de invitación */
+.party-card::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border: 1px solid hsl(var(--accent) / 0.18);
+    border-radius: 10px;
+    pointer-events: none;
+}
+
+.party-card .icon-art { width: 6.5rem; height: 6.5rem; }
+
+.party-card .event-title { font-size: 1.6rem; margin-bottom: 0.5rem; }
+
+.party-card p {
+    color: hsl(var(--ink) / 0.75);
+    margin-bottom: 1.5rem;
+    flex: 1;
+}
+
+/* ---------------------------------------------------------
+   Regalos / Confirmación
+   --------------------------------------------------------- */
+.gifts-container,
+.rsvp-container { max-width: 34rem; }
+
+.rsvp-text {
+    color: hsl(var(--ink) / 0.75);
+    margin-bottom: 1.5rem;
+}
+
+/* ---------------------------------------------------------
+   Footer (última capa, dorado profundo)
+   --------------------------------------------------------- */
+.footer.layer {
+    z-index: 1;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background:
+        linear-gradient(160deg, hsl(42 56% 49%) 0%, hsl(40 55% 38%) 100%);
+    color: hsl(var(--accent-soft));
+    padding-top: 3rem;
+    padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Si la sección anterior es elevada, su ola tapa el borde del footer
+   y proyecta la misma sombra ondulada sobre el dorado */
+.footer.layer.layer--after-up {
+    padding-top: calc(3rem + var(--layer-overlap));
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='170' viewBox='0 0 150 170' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cfilter id='b' x='-50%25' y='-50%25' width='200%25' height='200%25'%3E%3CfeGaussianBlur stdDeviation='10'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M-150 -60 L-150 24 C-112.5 24 -112.5 38 -75.0 38 C-37.5 38 -37.5 24 0 24 C37.5 24 37.5 38 75.0 38 C112.5 38 112.5 24 150 24 C187.5 24 187.5 38 225.0 38 C262.5 38 262.5 24 300 24 L300 -60 Z' fill='rgb%2847,41,35%29' fill-opacity='0.34' filter='url%28%23b%29' transform='translate%280 6%29'/%3E%3C/svg%3E") left top / var(--wave-w) 170px repeat-x,
+        linear-gradient(160deg, hsl(42 56% 49%) 0%, hsl(40 55% 38%) 100%);
+}
+
+/* Si la sección anterior es hundida, el footer se eleva con su propia ola
+   y proyecta la sombra hacia arriba */
+.footer.layer.footer--raised {
+    z-index: 3;
+    margin-top: calc(var(--layer-overlap) * -1);
+    padding-top: calc(3rem + 16px);
+    -webkit-mask:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='18' viewBox='0 0 150 18' preserveAspectRatio='none'%3E%3Cg transform='translate%280 18%29 scale%281 -1%29'%3E%3Cpath d='M0 0 H150 V2 C112.5 2 112.5 16 75.0 16 C37.5 16 37.5 2 0 2 Z'/%3E%3C/g%3E%3C/svg%3E") left top / var(--wave-w) 18px repeat-x,
+        linear-gradient(#000, #000) left bottom / 100% calc(100% - 16px) no-repeat;
+            mask:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='18' viewBox='0 0 150 18' preserveAspectRatio='none'%3E%3Cg transform='translate%280 18%29 scale%281 -1%29'%3E%3Cpath d='M0 0 H150 V2 C112.5 2 112.5 16 75.0 16 C37.5 16 37.5 2 0 2 Z'/%3E%3C/g%3E%3C/svg%3E") left top / var(--wave-w) 18px repeat-x,
+        linear-gradient(#000, #000) left bottom / 100% calc(100% - 16px) no-repeat;
+}
+
+.footer.layer::before { display: none; }
+
+.footer-content h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 2rem;
+    color: #fff;
+}
+
+.footer-date {
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    color: hsl(var(--accent-soft) / 0.9);
+}
+
+/* ---------------------------------------------------------
+   Toast
+   --------------------------------------------------------- */
+.toast {
+    position: fixed;
+    top: calc(5rem + env(safe-area-inset-top, 0px));
+    right: 1rem;
+    max-width: 300px;
+    padding: 1rem 1.25rem;
+    background: hsl(var(--paper));
+    border: 1px solid hsl(var(--accent) / 0.4);
+    border-radius: 12px;
+    box-shadow: 0 16px 36px -16px hsl(var(--ink) / 0.45);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(120%);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast.show { opacity: 1; transform: translateX(0); }
+
+.toast h4 { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; }
+
+/* ---------------------------------------------------------
+   Responsive
+   --------------------------------------------------------- */
+@media (min-width: 901px) {
+    :root { --wave-w: calc(100% / 10); }
+}
+
+@media (max-width: 900px) {
+    .party-grid { grid-template-columns: minmax(0, 19rem); gap: 1.5rem; }
+}
+
+@media (max-width: 768px) {
+    :root { --layer-radius: 1.6rem; }
+    body { background-attachment: scroll; }
+    .events-container { grid-template-columns: 1fr; gap: 3.5rem; }
+    .carousel-item { height: 420px; }
+    .carousel-btn { width: 38px; height: 38px; }
+}
+
+@media (max-width: 480px) {
+    .layer { padding-left: 1rem; padding-right: 1rem; }
+    .carousel-item { height: 360px; }
+    .countdown-separator { height: 2.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-scroll span { animation: none; }
+    .carousel-track { transition: none; }
+    .btn-wedding { transition: none; }
+}
